@@ -1,0 +1,188 @@
+package net.pkhapps.vepari.server.security;
+
+import net.pkhapps.vepari.server.common.ClockHolder;
+import net.pkhapps.vepari.server.common.ClockHolderTestUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.Clock;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Unit test for {@link User}.
+ */
+public class UserTest {
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    private static SimpleGrantedAuthority authority(String name) {
+        return new SimpleGrantedAuthority(name);
+    }
+
+    @Before
+    public void setUp() {
+        ClockHolderTestUtils.initClockHolder();
+    }
+
+    @Test
+    public void defaultStateAfterConstruction() {
+        ClockHolder.setClock(Clock.fixed(ZonedDateTime.of(2018, 2, 3, 12, 15, 30, 0,
+                ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault()));
+
+        var user = new User("joecool");
+        assertThat(user.isEnabled()).isTrue();
+        assertThat(user.isAccountNonExpired()).isTrue();
+        assertThat(user.isCredentialsNonExpired()).isFalse(); // No password
+        assertThat(user.isAccountNonLocked()).isTrue();
+        assertThat(user.getUsername()).isEqualTo("joecool");
+        assertThat(user.getPassword()).isNull();
+        assertThat(user.getValidFrom()).isEqualTo(ClockHolder.now());
+        assertThat(user.getValidTo()).isEqualTo(ZonedDateTime.of(2019, 2, 3, 12, 15, 30, 0,
+                ZoneId.systemDefault()).toInstant());
+    }
+
+    @Test
+    public void isAccountNonExpired_validFromInTheFuture_accountExpired() {
+        var user = new User("joecool");
+        user.setValidFrom(ClockHolder.now().plusSeconds(10));
+        assertThat(user.isAccountNonExpired()).isFalse();
+    }
+
+    @Test
+    public void isAccountNonExpired_validFromIsInThePast_accountNotExpired() {
+        var user = new User("joecool");
+        user.setValidFrom(ClockHolder.now().minusSeconds(10));
+        assertThat(user.isAccountNonExpired()).isTrue();
+    }
+
+    @Test
+    public void isAccountNonExpired_validToIsInThePast_accountExpired() {
+        var user = new User("joecool");
+        user.setValidTo(ClockHolder.now().minusSeconds(10));
+        assertThat(user.isAccountNonExpired()).isFalse();
+    }
+
+    @Test
+    public void isAccountNonExpired_validToIsNow_accountExpired() {
+        var user = new User("joecool");
+        user.setValidTo(ClockHolder.now());
+        assertThat(user.isAccountNonExpired()).isFalse();
+    }
+
+    @Test
+    public void setValidFrom_afterValidTo_validToIsAdjusted() {
+        var user = new User("joecool");
+        user.setValidFrom(user.getValidTo().plusSeconds(10));
+        assertThat(user.getValidTo()).isEqualTo(user.getValidFrom().atZone(ZoneId.systemDefault())
+                .plusYears(1).toInstant());
+    }
+
+    @Test
+    public void setValidFrom_beforeValidTo_validToIsLeftUntouched() {
+        var user = new User("joecool");
+        var oldValidTo = user.getValidTo();
+        user.setValidFrom(oldValidTo.minusSeconds(10));
+        assertThat(user.getValidTo()).isEqualTo(oldValidTo);
+    }
+
+    @Test
+    public void setValidTo_beforeValidFrom_validFromIsAdjusted() {
+        var user = new User("joecool");
+        user.setValidTo(user.getValidFrom().minusSeconds(10));
+        assertThat(user.getValidFrom()).isEqualTo(user.getValidTo().atZone(ZoneId.systemDefault())
+                .minusYears(1).toInstant());
+    }
+
+    @Test
+    public void setValidTo_afterValidFrom_validFromIsLeftUntouched() {
+        var user = new User("joecool");
+        var oldValidFrom = user.getValidFrom();
+        user.setValidTo(oldValidFrom.plusSeconds(10));
+        assertThat(user.getValidFrom()).isEqualTo(oldValidFrom);
+    }
+
+    @Test
+    public void lock_lockedFor15Minutes() {
+        var user = new User("joecool");
+        user.lock();
+        assertThat(user.isAccountNonLocked()).isFalse();
+
+        ClockHolderTestUtils.plus(Duration.ofMinutes(15));
+        assertThat(user.isAccountNonLocked()).isTrue();
+    }
+
+    @Test
+    public void unlock() {
+        var user = new User("joecool");
+        user.lock();
+        assertThat(user.isAccountNonLocked()).isFalse();
+
+        ClockHolderTestUtils.plus(Duration.ofMinutes(1));
+        assertThat(user.isAccountNonLocked()).isFalse();
+        user.unlock();
+        assertThat(user.isAccountNonLocked()).isTrue();
+    }
+
+    @Test
+    public void changePassword_passwordNotUsedBefore_accepted() throws Exception {
+        var user = new User("joecool");
+        user.changePassword("myPassword", passwordEncoder);
+        assertThat(user.isCredentialsNonExpired()).isTrue();
+        assertThat(passwordEncoder.matches("myPassword", user.getPassword())).isTrue();
+    }
+
+    @Test(expected = User.PasswordUsedBeforeException.class)
+    public void changePassword_passwordUsedBefore_rejected() throws Exception {
+        var user = new User("joecool");
+        user.changePassword("myPassword", passwordEncoder);
+        user.changePassword("myOtherPassword", passwordEncoder);
+        user.changePassword("myPassword", passwordEncoder);
+    }
+
+    @Test
+    public void enableAndDisable() {
+        var user = new User("joecool");
+        user.disable();
+        assertThat(user.isEnabled()).isFalse();
+        user.enable();
+        assertThat(user.isEnabled()).isTrue();
+    }
+
+    @Test
+    public void addRole_oneRole_authoritiesAreTakenFromRole() {
+        var user = new User("joecool");
+        var role = new Role("role").addAuthority(authority("auth1")).addAuthority(authority("auth2"));
+        user.addRole(role);
+
+        assertThat(user.getAuthorities()).containsOnlyOnce(authority("auth1"))
+                .containsOnlyOnce(authority("auth2"));
+    }
+
+    @Test
+    public void addRole_twoRoles_authoritiesAreTakenFromBothRoles() {
+        var role1 = new Role("role1").addAuthority(authority("auth1")).addAuthority(authority("auth2"));
+        var role2 = new Role("role2").addAuthority(authority("auth1")).addAuthority(authority("auth3"));
+        var user = new User("joecool").addRole(role1).addRole(role2);
+
+        assertThat(user.getAuthorities()).containsOnlyOnce(authority("auth1"))
+                .containsOnlyOnce(authority("auth2"))
+                .containsOnlyOnce(authority("auth3"));
+    }
+
+    @Test
+    public void removeRole() {
+        var role1 = new Role("role1").addAuthority(authority("auth1")).addAuthority(authority("auth2"));
+        var role2 = new Role("role2").addAuthority(authority("auth1")).addAuthority(authority("auth3"));
+        var user = new User("joecool").addRole(role1).addRole(role2).removeRole(role1);
+
+        assertThat(user.getAuthorities()).containsOnlyOnce(authority("auth1"))
+                .containsOnlyOnce(authority("auth3"));
+    }
+}
