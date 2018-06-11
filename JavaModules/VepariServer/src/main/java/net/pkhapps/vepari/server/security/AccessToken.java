@@ -47,8 +47,7 @@ public class AccessToken extends SecurityEntity<AccessToken> {
      * Used by JPA only.
      */
     @SuppressWarnings("unused")
-    AccessToken() {
-
+    private AccessToken() {
     }
 
     /**

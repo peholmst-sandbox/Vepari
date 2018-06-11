@@ -3,6 +3,7 @@ package net.pkhapps.vepari.server.security;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,4 +16,10 @@ interface AccessTokenRepository extends JpaRepository<AccessToken, String> {
      */
     @NonNull
     Optional<AccessToken> findByToken(@NonNull String token);
+
+    /**
+     * Finds the {@link AccessToken}s of the given user.
+     */
+    @NonNull
+    List<AccessToken> findByUser(@NonNull User user);
 }
