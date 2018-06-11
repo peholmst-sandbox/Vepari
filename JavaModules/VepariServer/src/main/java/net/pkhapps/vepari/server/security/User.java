@@ -270,6 +270,14 @@ public class User extends SecurityEntity<User> implements UserDetails {
     }
 
     /**
+     * Creates a {@link UserId} object for this user.
+     */
+    @NonNull
+    public final UserId toUserId() {
+        return new UserId(getId());
+    }
+
+    /**
      * Exception thrown when a user tries to re-use a password.
      */
     public static class PasswordUsedBeforeException extends Exception {
