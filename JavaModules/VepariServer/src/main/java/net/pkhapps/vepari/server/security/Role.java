@@ -47,7 +47,7 @@ public class Role extends SecurityEntity<Role> {
      * Returns the name of the role.
      */
     @NonNull
-    public final String getName() {
+    public String getName() {
         return name;
     }
 
@@ -55,7 +55,7 @@ public class Role extends SecurityEntity<Role> {
      * Changes the name of the role.
      */
     @NonNull
-    public final Role rename(@NonNull String newName) {
+    public Role rename(@NonNull String newName) {
         var oldName = name;
         if (!Objects.equals(oldName, newName)) {
             name = Objects.requireNonNull(newName, "newName must not be null");
@@ -70,7 +70,7 @@ public class Role extends SecurityEntity<Role> {
      * to modify the collection.
      */
     @NonNull
-    public final Collection<GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
     }
 
@@ -78,7 +78,7 @@ public class Role extends SecurityEntity<Role> {
      * Adds the given authority to the role. If the authority has already been added, nothing happens.
      */
     @NonNull
-    public final Role addAuthority(@NonNull GrantedAuthority authority) {
+    public Role addAuthority(@NonNull GrantedAuthority authority) {
         Objects.requireNonNull(authority, "authority must not be null");
         if (authorities.add(authority.getAuthority())) {
             registerEvent(new RoleAuthorityAddedEvent(this, authority));
@@ -90,7 +90,7 @@ public class Role extends SecurityEntity<Role> {
      * Removes the given authority from the role. If the authority did not exist, nothing happens.
      */
     @NonNull
-    public final Role removeAuthority(@NonNull GrantedAuthority authority) {
+    public Role removeAuthority(@NonNull GrantedAuthority authority) {
         Objects.requireNonNull(authority, "authority must not be null");
         if (authorities.remove(authority.getAuthority())) {
             registerEvent(new RoleAuthorityRemovedEvent(this, authority));

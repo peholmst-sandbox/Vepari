@@ -1,7 +1,6 @@
 package net.pkhapps.vepari.server.security;
 
 import net.pkhapps.vepari.server.common.ClockHolder;
-import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -20,7 +19,11 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * TODO Document me
+ * Entity representing an access token that can be used to authenticate a {@link User} without a username and password.
+ * Clients should authenticate initially using a username and password (or some other means of authentication),
+ * request an access token and then use the access token for all further authentication needs until the token expires.
+ *
+ * @see #validate()
  */
 @Entity
 @Table(name = "_access_tokens")
@@ -49,10 +52,11 @@ public class AccessToken extends SecurityEntity<AccessToken> {
     }
 
     /**
+     * Creates a new access token with an {@link #getIssueDate() issue date} of the current date and time.
      *
-     * @param user
-     * @param secureRandom
-     * @param validityDuration
+     * @param user             the user that will be authenticated by the token.
+     * @param secureRandom     the {@link SecureRandom} that will be used to generate the random {@link #getToken() string token}.
+     * @param validityDuration the amount of time the token will be valid after it has been generated.
      */
     AccessToken(@NonNull User user, @NonNull SecureRandom secureRandom, @NonNull Duration validityDuration) {
         Objects.requireNonNull(secureRandom, "secureRandom must not be null");
@@ -65,29 +69,49 @@ public class AccessToken extends SecurityEntity<AccessToken> {
         expirationDate = issueDate.plus(validityDuration);
     }
 
+    /**
+     * Returns the unique string token that identifies this {@link AccessToken}.
+     */
     @NonNull
     public String getToken() {
         return token;
     }
 
+    /**
+     * Returns the date when this access token was issued.
+     */
     @NonNull
     public Instant getIssueDate() {
         return issueDate;
     }
 
+    /**
+     * Returns the date when this access token expires.
+     */
     @NonNull
     public Instant getExpirationDate() {
         return expirationDate;
     }
 
+    /**
+     * Returns the user that is authenticated by this access token.
+     */
     @NonNull
     public User getUser() {
         return user;
     }
 
     /**
+     * Validates this access token by checking that:
+     * <ul>
+     * <li>The user account is not locked</li>
+     * <li>The user account is not expired</li>
+     * <li>The user account is not disabled</li>
+     * <li>The access token's issue date is <= the current date and time</li>
+     * <li>The access token's expiration date is > the current date and time</li>
+     * </ul>
      *
-     * @throws AuthenticationException
+     * @throws AuthenticationException if the access token is not valid.
      */
     public void validate() throws AuthenticationException {
         if (!user.isAccountNonLocked()) {

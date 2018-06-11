@@ -92,7 +92,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * @throws PasswordUsedBeforeException if the password has been used before.
      */
     @NonNull
-    public final User changePassword(@NonNull String password, @NonNull PasswordEncoder encoder) throws PasswordUsedBeforeException {
+    public User changePassword(@NonNull String password, @NonNull PasswordEncoder encoder) throws PasswordUsedBeforeException {
         Objects.requireNonNull(password, "password must not be null");
         Objects.requireNonNull(encoder, "encoder must not be null");
         if (isPasswordUsedBefore(password, encoder)) {
@@ -112,39 +112,39 @@ public class User extends SecurityEntity<User> implements UserDetails {
     }
 
     @Override
-    public final Collection<GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return roles.stream().flatMap(role -> role.getAuthorities().stream()).collect(Collectors.toSet());
     }
 
     @Override
-    public final String getPassword() {
+    public String getPassword() {
         return password;
     }
 
     @Override
-    public final String getUsername() {
+    public String getUsername() {
         return username;
     }
 
     @Override
-    public final boolean isAccountNonExpired() {
+    public boolean isAccountNonExpired() {
         var now = ClockHolder.now();
         return validFrom.compareTo(now) <= 0 && validTo.isAfter(now);
     }
 
     @Override
-    public final boolean isAccountNonLocked() {
+    public boolean isAccountNonLocked() {
         var now = ClockHolder.now();
         return locked == null || !locked.plus(LOCK_DURATION).isAfter(now);
     }
 
     @Override
-    public final boolean isCredentialsNonExpired() {
+    public boolean isCredentialsNonExpired() {
         return password != null;
     }
 
     @Override
-    public final boolean isEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
@@ -152,7 +152,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * Returns the instant at which the user account becomes valid.
      */
     @NonNull
-    public final Instant getValidFrom() {
+    public Instant getValidFrom() {
         return validFrom;
     }
 
@@ -162,7 +162,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * {@link #DEFAULT_ACCOUNT_VALIDITY_PERIOD} after this instant.
      */
     @NonNull
-    public final User setValidFrom(@NonNull Instant validFrom) {
+    public User setValidFrom(@NonNull Instant validFrom) {
         this.validFrom = Objects.requireNonNull(validFrom, "validFrom must not be null");
         if (validTo == null || validFrom.isAfter(validTo)) {
             validTo = ZonedDateTime.ofInstant(validFrom, ZoneId.systemDefault())
@@ -176,7 +176,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * Returns the instant at which the user account is no longer valid.
      */
     @NonNull
-    public final Instant getValidTo() {
+    public Instant getValidTo() {
         return validTo;
     }
 
@@ -186,7 +186,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * {@link #DEFAULT_ACCOUNT_VALIDITY_PERIOD} before this instant.
      */
     @NonNull
-    public final User setValidTo(@NonNull Instant validTo) {
+    public User setValidTo(@NonNull Instant validTo) {
         this.validTo = Objects.requireNonNull(validTo, "validTo must not be null");
         if (validFrom == null || validFrom.isAfter(validTo)) {
             validFrom = ZonedDateTime.ofInstant(validTo, ZoneId.systemDefault())
@@ -202,7 +202,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * @see #disable()
      */
     @NonNull
-    public final User enable() {
+    public User enable() {
         if (!enabled) {
             enabled = true;
             registerEvent(new UserEnabledEvent(this));
@@ -216,7 +216,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * @see #enable()
      */
     @NonNull
-    public final User disable() {
+    public User disable() {
         if (enabled) {
             enabled = false;
             registerEvent(new UserDisabledEvent(this));
@@ -230,7 +230,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * @see #unlock()
      */
     @NonNull
-    public final User lock() {
+    public User lock() {
         locked = ClockHolder.now();
         registerEvent(new UserLockedEvent(this));
         return this;
@@ -242,7 +242,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * @see #lock()
      */
     @NonNull
-    public final User unlock() {
+    public User unlock() {
         locked = null;
         return this;
     }
@@ -251,7 +251,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * Adds the given role to this user. If the role has already been added, nothing happens.
      */
     @NonNull
-    public final User addRole(@NonNull Role role) {
+    public User addRole(@NonNull Role role) {
         if (roles.add(role)) {
             registerEvent(new UserRoleAddedEvent(this, role));
         }
@@ -262,7 +262,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * Removes the given role from this user. If the user did not hold the role, nothing happens.
      */
     @NonNull
-    public final User removeRole(@NonNull Role role) {
+    public User removeRole(@NonNull Role role) {
         if (roles.remove(role)) {
             registerEvent(new UserRoleRemovedEvent(this, role));
         }
@@ -273,7 +273,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * Creates a {@link UserId} object for this user.
      */
     @NonNull
-    public final UserId toUserId() {
+    public UserId toUserId() {
         return new UserId(getId());
     }
 

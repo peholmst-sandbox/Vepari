@@ -7,7 +7,9 @@ import java.util.Collections;
 import java.util.Objects;
 
 /**
- * TODO Document me!
+ * An authentication token for {@link AccessToken}-based authentication that can be used either as an authentication
+ * request ({@link #isAuthenticated()} is set to false) or as the result of a successful authentication
+ * ({@link #isAuthenticated()} is set to true).
  */
 final class AccessTokenAuthentication extends AbstractAuthenticationToken {
 

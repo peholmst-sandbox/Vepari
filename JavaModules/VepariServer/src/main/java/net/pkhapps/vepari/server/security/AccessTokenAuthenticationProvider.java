@@ -1,32 +1,32 @@
 package net.pkhapps.vepari.server.security;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
-import java.time.Clock;
+import java.util.Objects;
 
 /**
- * TODO Document me!
+ * Authentication provider that accepts an unauthenticated {@link AccessTokenAuthentication} and returns an
+ * authenticated {@link AccessTokenAuthentication} if the token was {@link AccessToken#validate() valid}.
  */
-class AccessTokenAuthenticationProvider implements AuthenticationProvider {
+final class AccessTokenAuthenticationProvider implements AuthenticationProvider {
 
-    private final AccessTokenService accessTokenService;
-    private final Clock clock;
+    private final AccessTokenRepository accessTokenRepository;
 
-    AccessTokenAuthenticationProvider(AccessTokenService accessTokenService, Clock clock) {
-        this.accessTokenService = accessTokenService;
-        this.clock = clock;
+    AccessTokenAuthenticationProvider(@NonNull AccessTokenRepository accessTokenRepository) {
+        this.accessTokenRepository = Objects.requireNonNull(accessTokenRepository, "accessTokenRepository must not be null");
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         if (authentication instanceof AccessTokenAuthentication) {
-            var token = ((AccessTokenAuthentication) authentication).getToken()
-                    .flatMap(accessTokenService::findToken)
+            var token = accessTokenRepository.findByToken(((AccessTokenAuthentication) authentication).getToken())
                     .orElseThrow(() -> new BadCredentialsException("Access token does not exist"));
-
+            token.validate();
+            return new AccessTokenAuthentication(token);
         }
         return null;
     }

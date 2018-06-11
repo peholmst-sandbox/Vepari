@@ -1,8 +1,17 @@
 package net.pkhapps.vepari.server.security;
 
-import java.util.Optional;
-
+/**
+ * TODO Document me
+ */
 public interface AccessTokenService {
 
-    Optional<AccessToken> findToken(String token);
+    AccessToken generateTokenForCurrentUser();
+
+    void invalidateCurrentToken();
+
+    void invalidateAllTokensForCurrentUser();
+
+    void invalidateToken(AccessToken token);
+
+    void invalidateAllTokens(User user);
 }
