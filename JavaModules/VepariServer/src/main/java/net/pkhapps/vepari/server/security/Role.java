@@ -35,12 +35,23 @@ public class Role extends SecurityEntity<Role> {
     private Role() {
     }
 
+    private Role(@NonNull Role original) {
+        super(original);
+        name = original.name;
+        authorities = new HashSet<>(original.authorities);
+    }
+
     /**
      * Creates a new role with the given name and no authorities.
      */
     Role(@NonNull String name) {
         this.name = Objects.requireNonNull(name, "name must not be null");
         registerEvent(new RoleCreatedEvent(this));
+    }
+
+    @Override
+    public Role copy() {
+        return new Role(this);
     }
 
     /**
@@ -84,6 +95,15 @@ public class Role extends SecurityEntity<Role> {
             registerEvent(new RoleAuthorityAddedEvent(this, authority));
         }
         return this;
+    }
+
+    /**
+     * Adds the given authority to the role. If the authority has already been added, nothing happens.
+     */
+    @NonNull
+    public Role addAuthority(@NonNull String authority) {
+        Objects.requireNonNull(authority, "authority must not be null");
+        return addAuthority(new SimpleGrantedAuthority(authority));
     }
 
     /**

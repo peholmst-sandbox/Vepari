@@ -7,6 +7,7 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.crypto.codec.Hex;
 
 import javax.persistence.Column;
@@ -20,14 +21,14 @@ import java.util.Objects;
 
 /**
  * Entity representing an access token that can be used to authenticate a {@link User} without a username and password.
- * Clients should authenticate initially using a username and password (or some other means of authentication),
- * request an access token and then use the access token for all further authentication needs until the token expires.
+ * Clients should authenticate initially using a username and password (or some other means of security),
+ * request an access token and then use the access token for all further security needs until the token expires.
  *
  * @see #validate()
  */
 @Entity
 @Table(name = "_access_tokens")
-public class AccessToken extends SecurityEntity<AccessToken> {
+public class AccessToken extends SecurityEntity<AccessToken> implements CredentialsContainer {
 
     public static final int TOKEN_BYTE_LENGTH = 64;
 
@@ -48,6 +49,14 @@ public class AccessToken extends SecurityEntity<AccessToken> {
      */
     @SuppressWarnings("unused")
     private AccessToken() {
+    }
+
+    private AccessToken(@NonNull AccessToken original) {
+        super(original);
+        token = original.token;
+        issueDate = original.issueDate;
+        expirationDate = original.expirationDate;
+        user = original.user;
     }
 
     /**
@@ -73,6 +82,9 @@ public class AccessToken extends SecurityEntity<AccessToken> {
      */
     @NonNull
     public String getToken() {
+        if (token == null) {
+            throw new IllegalStateException("The credentials have been erased");
+        }
         return token;
     }
 
@@ -126,5 +138,16 @@ public class AccessToken extends SecurityEntity<AccessToken> {
         if (issueDate.isAfter(now) || expirationDate.compareTo(now) <= 0) {
             throw new CredentialsExpiredException("Token is expired");
         }
+    }
+
+    @Override
+    @NonNull
+    public AccessToken copy() {
+        return new AccessToken(this);
+    }
+
+    @Override
+    public void eraseCredentials() {
+        token = null;
     }
 }

@@ -46,6 +46,7 @@ public class UserTest {
         assertThat(user.getValidFrom()).isEqualTo(ClockHolder.now());
         assertThat(user.getValidTo()).isEqualTo(ZonedDateTime.of(2019, 2, 3, 12, 15, 30, 0,
                 ZoneId.systemDefault()).toInstant());
+        assertThat(user.getFailedLoginAttempts()).isEqualTo(0);
     }
 
     @Test
@@ -139,11 +140,27 @@ public class UserTest {
     }
 
     @Test(expected = User.PasswordUsedBeforeException.class)
+    public void changePassword_useExistingPassword_rejected() throws Exception {
+        var user = new User("joecool");
+        user.changePassword("myPassword", passwordEncoder);
+        user.changePassword("myPassword", passwordEncoder);
+    }
+
+    @Test(expected = User.PasswordUsedBeforeException.class)
     public void changePassword_passwordUsedBefore_rejected() throws Exception {
         var user = new User("joecool");
         user.changePassword("myPassword", passwordEncoder);
         user.changePassword("myOtherPassword", passwordEncoder);
         user.changePassword("myPassword", passwordEncoder);
+    }
+
+    @Test
+    public void changePassword_passwordUsedWayBack_accepted() throws Exception {
+        var user = new User("joecool");
+        for (int i = 0; i <= User.PASSWORD_HISTORY_LENGTH; ++i) {
+            user.changePassword("password" + i, passwordEncoder);
+        }
+        user.changePassword("password0", passwordEncoder);
     }
 
     @Test
@@ -184,5 +201,49 @@ public class UserTest {
 
         assertThat(user.getAuthorities()).containsOnlyOnce(authority("auth1"))
                 .containsOnlyOnce(authority("auth3"));
+    }
+
+    @Test
+    public void copy_allFieldsAreEqual() {
+        var role1 = new Role("role1").addAuthority(authority("auth1")).addAuthority(authority("auth2"));
+        var role2 = new Role("role2").addAuthority(authority("auth1")).addAuthority(authority("auth3"));
+        var user = new User("joecool").addRole(role1).addRole(role2);
+        var copy = user.copy();
+        assertThat(copy).isEqualToIgnoringGivenFields(user, "domainEvents");
+    }
+
+    @Test
+    public void notifyOfFailedLoginAttempts_lockedAfterMaxAttempts() {
+        var user = new User("joecool");
+        assertThat(user.isAccountNonLocked()).isTrue();
+        for (int i = 0; i < User.MAX_FAILED_LOGIN_ATTEMPTS; ++i) {
+            user.notifyOfFailedLogin();
+        }
+        assertThat(user.isAccountNonLocked()).isFalse();
+        assertThat(user.getFailedLoginAttempts()).isEqualTo(3);
+    }
+
+    @Test
+    public void notifyOfSuccessfulLoginAttempt_failedAttemptsIsReset() {
+        var user = new User("joecool");
+        user.notifyOfFailedLogin();
+        assertThat(user.getFailedLoginAttempts()).isEqualTo(1);
+
+        user.notifyOfSuccessfulLogin();
+        assertThat(user.getFailedLoginAttempts()).isEqualTo(0);
+    }
+
+    @Test
+    public void eraseCredentials() throws Exception {
+        var user = new User("joecool")
+                .changePassword("password", passwordEncoder)
+                .changePassword("password2", passwordEncoder);
+        assertThat(user.getPassword()).isNotNull();
+        assertThat(user.isPasswordUsedBefore("password", passwordEncoder)).isTrue();
+
+        user.eraseCredentials();
+
+        assertThat(user.getPassword()).isNull();
+        assertThat(user.isPasswordUsedBefore("password", passwordEncoder)).isFalse();
     }
 }

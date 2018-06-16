@@ -7,17 +7,17 @@ import java.util.Collections;
 import java.util.Objects;
 
 /**
- * An authentication token for {@link AccessToken}-based authentication that can be used either as an authentication
- * request ({@link #isAuthenticated()} is set to false) or as the result of a successful authentication
+ * An security token for {@link AccessToken}-based security that can be used either as an security
+ * request ({@link #isAuthenticated()} is set to false) or as the result of a successful security
  * ({@link #isAuthenticated()} is set to true).
  */
 final class AccessTokenAuthentication extends AbstractAuthenticationToken {
 
-    private final UserId principal;
-    private final String token;
+    private final User principal;
+    private String token;
 
     /**
-     * Creates a new unauthenticated {@code AccessTokenAuthentication} to use as an authentication request.
+     * Creates a new unauthenticated {@code AccessTokenAuthentication} to use as an security request.
      *
      * @param token the {@link AccessToken#getToken() string token}.
      */
@@ -36,17 +36,12 @@ final class AccessTokenAuthentication extends AbstractAuthenticationToken {
     AccessTokenAuthentication(@NonNull AccessToken token) {
         super(Objects.requireNonNull(token, "token must not be null").getUser().getAuthorities());
         this.token = token.getToken();
-        this.principal = token.getUser().toUserId();
+        this.principal = token.getUser().copy();
         super.setAuthenticated(true);
     }
 
     @Override
     public Object getCredentials() {
-        return token;
-    }
-
-    @NonNull
-    public String getToken() {
         return token;
     }
 
@@ -61,5 +56,11 @@ final class AccessTokenAuthentication extends AbstractAuthenticationToken {
             throw new IllegalArgumentException("Cannot explicitly set the authenticated flag to true");
         }
         super.setAuthenticated(false);
+    }
+
+    @Override
+    public void eraseCredentials() {
+        super.eraseCredentials();
+        token = null;
     }
 }

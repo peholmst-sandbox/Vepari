@@ -1,8 +1,12 @@
 package net.pkhapps.vepari.server.security;
 
 import net.pkhapps.vepari.server.common.ClockHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -24,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "_users")
-public class User extends SecurityEntity<User> implements UserDetails {
+public class User extends SecurityEntity<User> implements UserDetails, CredentialsContainer {
 
     /**
      * The number of passwords that are kept in the history of used passwords. A user's password
@@ -40,6 +44,12 @@ public class User extends SecurityEntity<User> implements UserDetails {
      * The duration of an account lock (15 minutes). This duration can currently not be adjusted.
      */
     public static final Duration LOCK_DURATION = Duration.ofMinutes(15);
+    /**
+     * The number of failed login attempts that will lock the account.
+     */
+    public static final int MAX_FAILED_LOGIN_ATTEMPTS = 3;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -65,11 +75,27 @@ public class User extends SecurityEntity<User> implements UserDetails {
     @Column(nullable = false)
     private Instant validTo;
 
+    @Column(nullable = false)
+    private int failedLoginAttempts;
+
     /**
      * Used by JPA only.
      */
     @SuppressWarnings("unused")
     private User() {
+    }
+
+    private User(@NonNull User original) {
+        super(original);
+        username = original.username;
+        password = original.password;
+        passwordHistory = new ArrayList<>(original.passwordHistory);
+        locked = original.locked;
+        enabled = original.enabled;
+        roles = new HashSet<>(original.roles);
+        validFrom = original.validFrom;
+        validTo = original.validTo;
+        failedLoginAttempts = original.failedLoginAttempts;
     }
 
     /**
@@ -101,19 +127,35 @@ public class User extends SecurityEntity<User> implements UserDetails {
         if (passwordHistory.size() >= PASSWORD_HISTORY_LENGTH) {
             passwordHistory.remove(0);
         }
-        passwordHistory.add(this.password);
         this.password = encoder.encode(password);
+        passwordHistory.add(this.password);
         // TODO Set expiration date for the new password
         return this;
     }
 
-    private boolean isPasswordUsedBefore(String password, PasswordEncoder encoder) {
+    boolean isPasswordUsedBefore(@NonNull String password, @NonNull PasswordEncoder encoder) {
         return passwordHistory.stream().anyMatch(oldPassword -> encoder.matches(password, oldPassword));
     }
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
         return roles.stream().flatMap(role -> role.getAuthorities().stream()).collect(Collectors.toSet());
+    }
+
+    /**
+     * Checks if this user has the given authority.
+     */
+    public boolean hasAuthority(@NonNull GrantedAuthority authority) {
+        Objects.requireNonNull(authority, "authority must not be null");
+        return roles.stream().flatMap(role -> role.getAuthorities().stream()).anyMatch(auth -> Objects.equals(auth, authority));
+    }
+
+    /**
+     * Checks if this user has the given authority.
+     */
+    public boolean hasAuthority(@NonNull String authority) {
+        Objects.requireNonNull(authority, "authority must not be null");
+        return hasAuthority(new SimpleGrantedAuthority(authority));
     }
 
     @Override
@@ -206,6 +248,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
         if (!enabled) {
             enabled = true;
             registerEvent(new UserEnabledEvent(this));
+            LOGGER.trace("Enabled user {}", username);
         }
         return this;
     }
@@ -220,6 +263,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
         if (enabled) {
             enabled = false;
             registerEvent(new UserDisabledEvent(this));
+            LOGGER.trace("Disabled user {}", username);
         }
         return this;
     }
@@ -233,6 +277,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
     public User lock() {
         locked = ClockHolder.now();
         registerEvent(new UserLockedEvent(this));
+        LOGGER.trace("Locked user {}", username);
         return this;
     }
 
@@ -244,6 +289,7 @@ public class User extends SecurityEntity<User> implements UserDetails {
     @NonNull
     public User unlock() {
         locked = null;
+        LOGGER.trace("Unlocked user {}", username);
         return this;
     }
 
@@ -252,8 +298,10 @@ public class User extends SecurityEntity<User> implements UserDetails {
      */
     @NonNull
     public User addRole(@NonNull Role role) {
+        Objects.requireNonNull(role, "role must not be null");
         if (roles.add(role)) {
             registerEvent(new UserRoleAddedEvent(this, role));
+            LOGGER.trace("Added role {} to user {}", role.getName(), username);
         }
         return this;
     }
@@ -263,18 +311,49 @@ public class User extends SecurityEntity<User> implements UserDetails {
      */
     @NonNull
     public User removeRole(@NonNull Role role) {
+        Objects.requireNonNull(role, "role must not be null");
         if (roles.remove(role)) {
             registerEvent(new UserRoleRemovedEvent(this, role));
+            LOGGER.trace("Removed role {} from user {}", role.getName(), username);
         }
         return this;
     }
 
     /**
-     * Creates a {@link UserId} object for this user.
+     * Called by the authentication provider when somebody has tried to authenticate as this user but failed.
      */
+    User notifyOfFailedLogin() {
+        failedLoginAttempts++;
+        LOGGER.trace("Login failed for user {}, number of failed attempts is {}", username, failedLoginAttempts);
+        if (failedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+            lock();
+        }
+        return this;
+    }
+
+    /**
+     * Called by the authentication provider when somebody has successfully authenticated as this user.
+     */
+    User notifyOfSuccessfulLogin() {
+        failedLoginAttempts = 0;
+        LOGGER.trace("Login succeeded for user {}", username);
+        return this;
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    @Override
     @NonNull
-    public UserId toUserId() {
-        return new UserId(getId());
+    public User copy() {
+        return new User(this);
+    }
+
+    @Override
+    public void eraseCredentials() {
+        password = null;
+        passwordHistory.clear();
     }
 
     /**

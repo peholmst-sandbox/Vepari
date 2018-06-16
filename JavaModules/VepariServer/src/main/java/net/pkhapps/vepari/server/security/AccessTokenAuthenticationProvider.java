@@ -23,10 +23,14 @@ final class AccessTokenAuthenticationProvider implements AuthenticationProvider 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         if (authentication instanceof AccessTokenAuthentication) {
-            var token = accessTokenRepository.findByToken(((AccessTokenAuthentication) authentication).getToken())
-                    .orElseThrow(() -> new BadCredentialsException("Access token does not exist"));
-            token.validate();
-            return new AccessTokenAuthentication(token);
+            if (authentication.getCredentials() != null) {
+                var token = accessTokenRepository.findByToken(authentication.getCredentials().toString())
+                        .orElseThrow(() -> new BadCredentialsException("Access token does not exist"));
+                token.validate();
+                return new AccessTokenAuthentication(token);
+            } else {
+                throw new BadCredentialsException("No access token specified");
+            }
         }
         return null;
     }

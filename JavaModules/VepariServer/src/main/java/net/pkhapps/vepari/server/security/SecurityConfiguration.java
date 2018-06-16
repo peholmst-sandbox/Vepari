@@ -11,7 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import java.security.SecureRandom;
 
 /**
  * Security configuration for the application.
@@ -25,26 +27,39 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private AccessTokenRepository accessTokenRepository;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    SecureRandom secureRandom() throws Exception {
+        return SecureRandom.getInstanceStrong();
+    }
+
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) {
         auth
                 .authenticationProvider(new AccessTokenAuthenticationProvider(accessTokenRepository))
-                .userDetailsService(userService)
-                .passwordEncoder(passwordEncoder());
+                .authenticationProvider(new UsernamePasswordAuthenticationProvider(userRepository, passwordEncoder()));
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(new AccessTokenAuthenticationFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class)
-                .authorizeRequests().antMatchers("/**").authenticated()
+                .csrf().disable()
+                .cors().disable()
+                .logout().disable()
+                .rememberMe().disable()
+                .anonymous().disable()
+                .sessionManagement().disable()
+                .addFilterBefore(new AccessTokenAuthenticationFilter(authenticationManager()), BasicAuthenticationFilter.class)
+                .authorizeRequests()
+                .antMatchers("/**").authenticated()
+                .and()
+                .httpBasic()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }

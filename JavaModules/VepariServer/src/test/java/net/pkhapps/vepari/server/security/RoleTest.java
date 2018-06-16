@@ -40,4 +40,11 @@ public class RoleTest {
         role.removeAuthority(new SimpleGrantedAuthority("AUTH"));
         assertThat(role.getAuthorities()).isEmpty();
     }
+
+    @Test
+    public void copy_allFieldsAreEqual() {
+        var role = new Role("My Role").addAuthority("AUTH").addAuthority("AUTH2");
+        var copy = role.copy();
+        assertThat(copy).isEqualToIgnoringGivenFields(role, "domainEvents");
+    }
 }

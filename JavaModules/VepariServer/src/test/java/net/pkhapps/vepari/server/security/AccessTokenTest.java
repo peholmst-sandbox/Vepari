@@ -83,6 +83,20 @@ public class AccessTokenTest {
         token.validate();
     }
 
+    @Test
+    public void copy_allFieldsAreEqual() {
+        var token = createToken(createUser());
+        var copy = token.copy();
+        assertThat(copy).isEqualToComparingFieldByField(token);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void eraseCredentials_exceptionThrownWhenAccessingToken() {
+        var token = createToken(createUser());
+        token.eraseCredentials();
+        token.getToken();
+    }
+
     private User createUser() {
         return new User("joecool");
     }

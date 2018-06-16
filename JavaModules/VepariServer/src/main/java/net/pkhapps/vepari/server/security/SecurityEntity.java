@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -24,22 +25,48 @@ abstract class SecurityEntity<SE extends SecurityEntity<SE>>
     private Long id;
 
     @Version
-    @SuppressWarnings("unused") // Used by JPA only
     private Long optLockVersion;
 
-    @Override
-    public final Long getId() {
-        return id;
+    /**
+     * Default constructor.
+     */
+    protected SecurityEntity() {
+    }
+
+    /**
+     * Copy constructor.
+     */
+    protected SecurityEntity(SecurityEntity<SE> original) {
+        Objects.requireNonNull(original, "original must not be null");
+        id = original.id;
+        optLockVersion = original.optLockVersion;
     }
 
     @Override
-    public final boolean isNew() {
+    public Long getId() {
+        return id;
+    }
+
+    protected void setId(Long id) {
+        this.id = id;
+    }
+
+    protected Long getOptLockVersion() {
+        return optLockVersion;
+    }
+
+    protected void setOptLockVersion(Long optLockVersion) {
+        this.optLockVersion = optLockVersion;
+    }
+
+    @Override
+    public boolean isNew() {
         return id == null;
     }
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override
-    public final boolean equals(Object obj) {
+    public boolean equals(Object obj) {
         if (obj == null || !ClassUtils.getUserClass(obj).equals(getClass())) {
             return false;
         } else if (obj == this) {
@@ -51,12 +78,18 @@ abstract class SecurityEntity<SE extends SecurityEntity<SE>>
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         return id == null ? super.hashCode() : Objects.hash(getClass(), id);
     }
 
     @Override
-    public final String toString() {
+    public String toString() {
         return String.format("%s[id=%d]", getClass().getSimpleName(), id);
     }
+
+    /**
+     * Returns a copy of this object.
+     */
+    @NotNull
+    public abstract SE copy();
 }
