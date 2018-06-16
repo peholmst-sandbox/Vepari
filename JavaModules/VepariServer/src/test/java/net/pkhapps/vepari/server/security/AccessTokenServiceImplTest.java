@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
  */
 public class AccessTokenServiceImplTest {
 
+    @SuppressWarnings("SpellCheckingInspection")
     private static final String TEST_USER_NAME = "joecool";
     private static final long TEST_USER_ID = 123;
     private static final Duration TOKEN_DURATION = Duration.ofDays(10);

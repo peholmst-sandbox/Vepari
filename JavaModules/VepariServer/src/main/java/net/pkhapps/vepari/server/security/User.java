@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "_users")
+@SuppressWarnings("UnusedReturnValue") // Method-chaining API
 public class User extends SecurityEntity<User> implements UserDetails, CredentialsContainer {
 
     /**
@@ -405,6 +406,7 @@ public class User extends SecurityEntity<User> implements UserDetails, Credentia
     /**
      * Base class for {@link User user events} that concern a specific {@link Role}.
      */
+    @SuppressWarnings("unused")
     static abstract class UserRoleEvent extends SecurityEntityEvent<User> {
 
         private final Role role;

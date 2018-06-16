@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Main entry point into the application.
  */
 @SpringBootApplication
+@SuppressWarnings("SpellCheckingInspection")
 public class VepariServerApp {
 
     public static void main(String[] args) {

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "_roles")
+@SuppressWarnings("UnusedReturnValue") // Method-chaining API
 public class Role extends SecurityEntity<Role> {
 
     @Column(nullable = false, unique = true)
@@ -131,6 +132,7 @@ public class Role extends SecurityEntity<Role> {
     /**
      * Event fired when a {@link Role} is renamed.
      */
+    @SuppressWarnings("unused")
     public static final class RoleRenamedEvent extends SecurityEntityEvent<Role> {
 
         private final String oldName;
@@ -152,6 +154,7 @@ public class Role extends SecurityEntity<Role> {
     /**
      * Base class for {@link Role role events} that concern a particular {@link GrantedAuthority}.
      */
+    @SuppressWarnings("unused")
     static abstract class RoleAuthorityChangeEvent extends SecurityEntityEvent<Role> {
 
         private final GrantedAuthority authority;

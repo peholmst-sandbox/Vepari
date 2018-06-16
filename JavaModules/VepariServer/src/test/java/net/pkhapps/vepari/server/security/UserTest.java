@@ -32,11 +32,12 @@ public class UserTest {
     }
 
     @Test
+    @SuppressWarnings("SpellCheckingInspection")
     public void defaultStateAfterConstruction() {
         ClockHolder.setClock(Clock.fixed(ZonedDateTime.of(2018, 2, 3, 12, 15, 30, 0,
                 ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault()));
 
-        var user = new User("joecool");
+        var user = createUser();
         assertThat(user.isEnabled()).isTrue();
         assertThat(user.isAccountNonExpired()).isTrue();
         assertThat(user.isCredentialsNonExpired()).isFalse(); // No password
@@ -51,35 +52,35 @@ public class UserTest {
 
     @Test
     public void isAccountNonExpired_validFromInTheFuture_accountExpired() {
-        var user = new User("joecool");
+        var user = createUser();
         user.setValidFrom(ClockHolder.now().plusSeconds(10));
         assertThat(user.isAccountNonExpired()).isFalse();
     }
 
     @Test
     public void isAccountNonExpired_validFromIsInThePast_accountNotExpired() {
-        var user = new User("joecool");
+        var user = createUser();
         user.setValidFrom(ClockHolder.now().minusSeconds(10));
         assertThat(user.isAccountNonExpired()).isTrue();
     }
 
     @Test
     public void isAccountNonExpired_validToIsInThePast_accountExpired() {
-        var user = new User("joecool");
+        var user = createUser();
         user.setValidTo(ClockHolder.now().minusSeconds(10));
         assertThat(user.isAccountNonExpired()).isFalse();
     }
 
     @Test
     public void isAccountNonExpired_validToIsNow_accountExpired() {
-        var user = new User("joecool");
+        var user = createUser();
         user.setValidTo(ClockHolder.now());
         assertThat(user.isAccountNonExpired()).isFalse();
     }
 
     @Test
     public void setValidFrom_afterValidTo_validToIsAdjusted() {
-        var user = new User("joecool");
+        var user = createUser();
         user.setValidFrom(user.getValidTo().plusSeconds(10));
         assertThat(user.getValidTo()).isEqualTo(user.getValidFrom().atZone(ZoneId.systemDefault())
                 .plusYears(1).toInstant());
@@ -87,7 +88,7 @@ public class UserTest {
 
     @Test
     public void setValidFrom_beforeValidTo_validToIsLeftUntouched() {
-        var user = new User("joecool");
+        var user = createUser();
         var oldValidTo = user.getValidTo();
         user.setValidFrom(oldValidTo.minusSeconds(10));
         assertThat(user.getValidTo()).isEqualTo(oldValidTo);
@@ -95,7 +96,7 @@ public class UserTest {
 
     @Test
     public void setValidTo_beforeValidFrom_validFromIsAdjusted() {
-        var user = new User("joecool");
+        var user = createUser();
         user.setValidTo(user.getValidFrom().minusSeconds(10));
         assertThat(user.getValidFrom()).isEqualTo(user.getValidTo().atZone(ZoneId.systemDefault())
                 .minusYears(1).toInstant());
@@ -103,7 +104,7 @@ public class UserTest {
 
     @Test
     public void setValidTo_afterValidFrom_validFromIsLeftUntouched() {
-        var user = new User("joecool");
+        var user = createUser();
         var oldValidFrom = user.getValidFrom();
         user.setValidTo(oldValidFrom.plusSeconds(10));
         assertThat(user.getValidFrom()).isEqualTo(oldValidFrom);
@@ -111,8 +112,7 @@ public class UserTest {
 
     @Test
     public void lock_lockedFor15Minutes() {
-        var user = new User("joecool");
-        user.lock();
+        var user = createUser().lock();
         assertThat(user.isAccountNonLocked()).isFalse();
 
         ClockHolderTestUtils.plus(Duration.ofMinutes(15));
@@ -121,8 +121,7 @@ public class UserTest {
 
     @Test
     public void unlock() {
-        var user = new User("joecool");
-        user.lock();
+        var user = createUser().lock();
         assertThat(user.isAccountNonLocked()).isFalse();
 
         ClockHolderTestUtils.plus(Duration.ofMinutes(1));
@@ -133,22 +132,21 @@ public class UserTest {
 
     @Test
     public void changePassword_passwordNotUsedBefore_accepted() throws Exception {
-        var user = new User("joecool");
-        user.changePassword("myPassword", passwordEncoder);
+        var user = createUser().changePassword("myPassword", passwordEncoder);
         assertThat(user.isCredentialsNonExpired()).isTrue();
         assertThat(passwordEncoder.matches("myPassword", user.getPassword())).isTrue();
     }
 
     @Test(expected = User.PasswordUsedBeforeException.class)
     public void changePassword_useExistingPassword_rejected() throws Exception {
-        var user = new User("joecool");
-        user.changePassword("myPassword", passwordEncoder);
-        user.changePassword("myPassword", passwordEncoder);
+        createUser()
+                .changePassword("myPassword", passwordEncoder)
+                .changePassword("myPassword", passwordEncoder);
     }
 
     @Test(expected = User.PasswordUsedBeforeException.class)
     public void changePassword_passwordUsedBefore_rejected() throws Exception {
-        var user = new User("joecool");
+        var user = createUser();
         user.changePassword("myPassword", passwordEncoder);
         user.changePassword("myOtherPassword", passwordEncoder);
         user.changePassword("myPassword", passwordEncoder);
@@ -156,7 +154,7 @@ public class UserTest {
 
     @Test
     public void changePassword_passwordUsedWayBack_accepted() throws Exception {
-        var user = new User("joecool");
+        var user = createUser();
         for (int i = 0; i <= User.PASSWORD_HISTORY_LENGTH; ++i) {
             user.changePassword("password" + i, passwordEncoder);
         }
@@ -165,7 +163,7 @@ public class UserTest {
 
     @Test
     public void enableAndDisable() {
-        var user = new User("joecool");
+        var user = createUser();
         user.disable();
         assertThat(user.isEnabled()).isFalse();
         user.enable();
@@ -174,7 +172,7 @@ public class UserTest {
 
     @Test
     public void addRole_oneRole_authoritiesAreTakenFromRole() {
-        var user = new User("joecool");
+        var user = createUser();
         var role = new Role("role").addAuthority(authority("auth1")).addAuthority(authority("auth2"));
         user.addRole(role);
 
@@ -186,7 +184,7 @@ public class UserTest {
     public void addRole_twoRoles_authoritiesAreTakenFromBothRoles() {
         var role1 = new Role("role1").addAuthority(authority("auth1")).addAuthority(authority("auth2"));
         var role2 = new Role("role2").addAuthority(authority("auth1")).addAuthority(authority("auth3"));
-        var user = new User("joecool").addRole(role1).addRole(role2);
+        var user = createUser().addRole(role1).addRole(role2);
 
         assertThat(user.getAuthorities()).containsOnlyOnce(authority("auth1"))
                 .containsOnlyOnce(authority("auth2"))
@@ -197,7 +195,7 @@ public class UserTest {
     public void removeRole() {
         var role1 = new Role("role1").addAuthority(authority("auth1")).addAuthority(authority("auth2"));
         var role2 = new Role("role2").addAuthority(authority("auth1")).addAuthority(authority("auth3"));
-        var user = new User("joecool").addRole(role1).addRole(role2).removeRole(role1);
+        var user = createUser().addRole(role1).addRole(role2).removeRole(role1);
 
         assertThat(user.getAuthorities()).containsOnlyOnce(authority("auth1"))
                 .containsOnlyOnce(authority("auth3"));
@@ -207,14 +205,14 @@ public class UserTest {
     public void copy_allFieldsAreEqual() {
         var role1 = new Role("role1").addAuthority(authority("auth1")).addAuthority(authority("auth2"));
         var role2 = new Role("role2").addAuthority(authority("auth1")).addAuthority(authority("auth3"));
-        var user = new User("joecool").addRole(role1).addRole(role2);
+        var user = createUser().addRole(role1).addRole(role2);
         var copy = user.copy();
         assertThat(copy).isEqualToIgnoringGivenFields(user, "domainEvents");
     }
 
     @Test
     public void notifyOfFailedLoginAttempts_lockedAfterMaxAttempts() {
-        var user = new User("joecool");
+        var user = createUser();
         assertThat(user.isAccountNonLocked()).isTrue();
         for (int i = 0; i < User.MAX_FAILED_LOGIN_ATTEMPTS; ++i) {
             user.notifyOfFailedLogin();
@@ -225,8 +223,7 @@ public class UserTest {
 
     @Test
     public void notifyOfSuccessfulLoginAttempt_failedAttemptsIsReset() {
-        var user = new User("joecool");
-        user.notifyOfFailedLogin();
+        var user = createUser().notifyOfFailedLogin();
         assertThat(user.getFailedLoginAttempts()).isEqualTo(1);
 
         user.notifyOfSuccessfulLogin();
@@ -235,7 +232,7 @@ public class UserTest {
 
     @Test
     public void eraseCredentials() throws Exception {
-        var user = new User("joecool")
+        var user = createUser()
                 .changePassword("password", passwordEncoder)
                 .changePassword("password2", passwordEncoder);
         assertThat(user.getPassword()).isNotNull();
@@ -245,5 +242,10 @@ public class UserTest {
 
         assertThat(user.getPassword()).isNull();
         assertThat(user.isPasswordUsedBefore("password", passwordEncoder)).isFalse();
+    }
+
+    @SuppressWarnings("SpellCheckingInspection")
+    private User createUser() {
+        return new User("joecool");
     }
 }

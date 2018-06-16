@@ -9,6 +9,7 @@ import java.util.Objects;
 /**
  * Base class for domain events fired by subclasses of {@link SecurityEntity}.
  */
+@SuppressWarnings("unused")
 abstract class SecurityEntityEvent<SE extends SecurityEntity<SE>> {
 
     private final SE sender;

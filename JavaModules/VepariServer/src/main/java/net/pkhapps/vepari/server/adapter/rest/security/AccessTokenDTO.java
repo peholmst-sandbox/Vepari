@@ -9,8 +9,7 @@ import java.util.Objects;
 /**
  * JSON DTO for an {@link AccessToken}.
  */
-@SuppressWarnings("WeakerAccess")
-        // Jackson wants public fields.
+@SuppressWarnings({"WeakerAccess", "unused"})
 class AccessTokenDTO {
 
     public final String token;

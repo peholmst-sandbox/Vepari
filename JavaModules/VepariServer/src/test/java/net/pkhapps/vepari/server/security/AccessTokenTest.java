@@ -97,6 +97,7 @@ public class AccessTokenTest {
         token.getToken();
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     private User createUser() {
         return new User("joecool");
     }

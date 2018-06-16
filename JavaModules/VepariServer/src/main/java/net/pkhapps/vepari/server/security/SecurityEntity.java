@@ -2,6 +2,7 @@ package net.pkhapps.vepari.server.security;
 
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.domain.Persistable;
+import org.springframework.lang.NonNull;
 import org.springframework.util.ClassUtils;
 
 import javax.persistence.GeneratedValue;
@@ -30,13 +31,13 @@ abstract class SecurityEntity<SE extends SecurityEntity<SE>>
     /**
      * Default constructor.
      */
-    protected SecurityEntity() {
+    SecurityEntity() {
     }
 
     /**
      * Copy constructor.
      */
-    protected SecurityEntity(SecurityEntity<SE> original) {
+    SecurityEntity(@NonNull SecurityEntity<SE> original) {
         Objects.requireNonNull(original, "original must not be null");
         id = original.id;
         optLockVersion = original.optLockVersion;
@@ -47,16 +48,11 @@ abstract class SecurityEntity<SE extends SecurityEntity<SE>>
         return id;
     }
 
-    protected void setId(Long id) {
+    @SuppressWarnings("unchecked")
+    @NonNull
+    SE setId(Long id) {
         this.id = id;
-    }
-
-    protected Long getOptLockVersion() {
-        return optLockVersion;
-    }
-
-    protected void setOptLockVersion(Long optLockVersion) {
-        this.optLockVersion = optLockVersion;
+        return (SE) this;
     }
 
     @Override
@@ -91,5 +87,6 @@ abstract class SecurityEntity<SE extends SecurityEntity<SE>>
      * Returns a copy of this object.
      */
     @NotNull
+    @SuppressWarnings("unused")
     public abstract SE copy();
 }
