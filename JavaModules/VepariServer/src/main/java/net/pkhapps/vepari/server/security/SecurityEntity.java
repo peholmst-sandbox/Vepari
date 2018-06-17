@@ -3,12 +3,10 @@ package net.pkhapps.vepari.server.security;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.domain.Persistable;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
@@ -22,10 +20,12 @@ abstract class SecurityEntity<SE extends SecurityEntity<SE>>
         extends AbstractAggregateRoot<SE> implements Persistable<Long> {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "_id")
     private Long id;
 
     @Version
+    @Column(name = "_opt_lock_ver")
     private Long optLockVersion;
 
     /**
@@ -44,6 +44,7 @@ abstract class SecurityEntity<SE extends SecurityEntity<SE>>
     }
 
     @Override
+    @Nullable
     public Long getId() {
         return id;
     }

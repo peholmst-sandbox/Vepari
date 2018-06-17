@@ -3,6 +3,7 @@ package net.pkhapps.vepari.server.adapter.rest.phonecall;
 import net.pkhapps.vepari.server.security.Permissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,7 @@ class IncomingPhoneCallController {
     static final String PATH = "/phoneCall/1.0";
     private static final Logger LOGGER = LoggerFactory.getLogger(IncomingPhoneCallController.class);
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @Secured(Permissions.RECEIVE_PHONE_CALL)
     public void receivePhoneCall(@NotNull PhoneCall phoneCall) {
         LOGGER.info("Received phone call {}", phoneCall);

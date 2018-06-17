@@ -1,6 +1,6 @@
 package net.pkhapps.vepari.server.security;
 
-import net.pkhapps.vepari.server.common.ClockHolder;
+import net.pkhapps.vepari.server.util.ClockHolder;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.CredentialsExpiredException;

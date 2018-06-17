@@ -1,6 +1,6 @@
 package net.pkhapps.vepari.server.security;
 
-import net.pkhapps.vepari.server.common.ClockHolder;
+import net.pkhapps.vepari.server.util.ClockHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
@@ -52,31 +52,33 @@ public class User extends SecurityEntity<User> implements UserDetails, Credentia
 
     private static final Logger LOGGER = LoggerFactory.getLogger(User.class);
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, name = "username")
     private String username;
 
+    @Column(name = "encoded_password")
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "_user_password_history") // TODO ordering
     private List<String> passwordHistory = new ArrayList<>();
 
+    @Column(name = "locked")
     private Instant locked;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "enabled")
     private boolean enabled = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "_user_roles")
     private Set<Role> roles = new HashSet<>();
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "valid_from_date")
     private Instant validFrom;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "valid_to_date")
     private Instant validTo;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "failed_login_attempts")
     private int failedLoginAttempts;
 
     /**

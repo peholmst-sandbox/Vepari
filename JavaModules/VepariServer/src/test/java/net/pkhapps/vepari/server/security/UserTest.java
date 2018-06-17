@@ -1,7 +1,7 @@
 package net.pkhapps.vepari.server.security;
 
-import net.pkhapps.vepari.server.common.ClockHolder;
 import net.pkhapps.vepari.server.common.ClockHolderTestUtils;
+import net.pkhapps.vepari.server.util.ClockHolder;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

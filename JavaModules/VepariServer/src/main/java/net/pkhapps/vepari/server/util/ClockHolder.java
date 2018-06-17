@@ -1,4 +1,4 @@
-package net.pkhapps.vepari.server.common;
+package net.pkhapps.vepari.server.util;
 
 import org.springframework.lang.NonNull;
 
