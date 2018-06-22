@@ -1,5 +1,6 @@
 package net.pkhapps.vepari.server.integrationtest;
 
+import net.pkhapps.vepari.server.security.IntegrationTestSecurityUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class IncomingPhoneCallControllerIntegrationTest {
     WebTestClient webTestClient;
 
     @Autowired
-    IntegrationTestUtils integrationTestUtils;
+    IntegrationTestSecurityUtils integrationTestUtils;
 
     @Test
     public void receiveSMS() {

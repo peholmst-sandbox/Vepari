@@ -1,5 +1,6 @@
 package net.pkhapps.vepari.server.integrationtest;
 
+import net.pkhapps.vepari.server.security.IntegrationTestSecurityUtils;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,7 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class AuthenticationControllerIntegrationTest {
 
     @Autowired
-    IntegrationTestUtils integrationTestUtils;
+    IntegrationTestSecurityUtils integrationTestUtils;
 
 
 }
