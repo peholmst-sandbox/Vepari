@@ -24,9 +24,9 @@ public class IntegrationTestSecurityUtils {
     @Autowired
     AccessTokenService accessTokenService;
 
-    private ThreadLocal<Role> role = new ThreadLocal<>();
-    private ThreadLocal<User> user = new ThreadLocal<>();
-    private ThreadLocal<AccessToken> accessToken = new ThreadLocal<>();
+    private final ThreadLocal<Role> role = new ThreadLocal<>();
+    private final ThreadLocal<User> user = new ThreadLocal<>();
+    private final ThreadLocal<AccessToken> accessToken = new ThreadLocal<>();
 
     /**
      * Generates a new role with the given permissions, a new user that holds the role and an access token for the

@@ -30,11 +30,15 @@ import java.util.List;
 @EnableJpaAuditing
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private AccessTokenRepository accessTokenRepository;
+    private final AccessTokenRepository accessTokenRepository;
+
+    private final UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    SecurityConfiguration(AccessTokenRepository accessTokenRepository, UserRepository userRepository) {
+        this.accessTokenRepository = accessTokenRepository;
+        this.userRepository = userRepository;
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {

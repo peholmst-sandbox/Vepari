@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull;
 class IncomingSMSController {
 
     static final String PATH = "/sms/1.0";
-    private static final Logger LOGGER = LoggerFactory.getLogger(IncomingSMSController.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final ApplicationEventPublisher applicationEventPublisher;
 
     IncomingSMSController(ApplicationEventPublisher applicationEventPublisher) {
@@ -38,8 +38,8 @@ class IncomingSMSController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @Secured(Permissions.RECEIVE_SMS)
     public void receiveSMS(@RequestBody @NotNull @Valid TextMessageDTO dto) {
-        LOGGER.debug("Received message from {}", dto.sender);
-        LOGGER.trace("Message body: \"{}\"", dto.body);
+        logger.info("Received text message from {}", dto.sender);
+        logger.trace("Message body: \"{}\"", dto.body);
 
         var domainObject = new TextMessage(dto.sender, dto.timestamp, dto.body);
         applicationEventPublisher.publishEvent(new TextMessageReceivedEvent(domainObject));

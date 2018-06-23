@@ -21,6 +21,7 @@ import java.time.Instant;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class IncomingSMSControllerIntegrationTest {
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // Injection works fine
     @Autowired
     WebTestClient webTestClient;
 

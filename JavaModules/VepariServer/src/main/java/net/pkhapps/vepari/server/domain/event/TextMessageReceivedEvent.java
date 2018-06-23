@@ -15,8 +15,6 @@ public class TextMessageReceivedEvent extends DomainEvent {
 
     /**
      * Creates a new {@code TextMessageReceivedEvent}.
-     *
-     * @param textMessage the text message.
      */
     public TextMessageReceivedEvent(@NonNull TextMessage textMessage) {
         this.textMessage = Objects.requireNonNull(textMessage, "textMessage must not be null");

@@ -121,7 +121,26 @@ public abstract class WGS84Coordinate {
 
     // TODO Create formatter for degreesMinutesSeconds (currently not needed)
 
-    // TODO Equals, hashCode and toString()
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || obj.getClass() != getClass()) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        return decimalDegrees.equals(((WGS84Coordinate) obj).decimalDegrees);
+    }
+
+    @Override
+    public int hashCode() {
+        return decimalDegrees.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[%s]", getClass().getSimpleName(), toDegreesDecimalMinutes(AxisLocation.SUFFIX));
+    }
 
     /**
      *

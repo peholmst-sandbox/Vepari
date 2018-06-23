@@ -9,6 +9,7 @@ import java.util.Objects;
 /**
  * Value object representing an SMS.
  */
+@SuppressWarnings("SpellCheckingInspection")
 public class TextMessage implements Serializable {
 
     private final String sender;
@@ -54,11 +55,11 @@ public class TextMessage implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
         if (obj == this) {
             return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
         }
         var other = (TextMessage) obj;
         return sender.equals(other.sender) && timestamp.equals(other.timestamp) && body.equals(other.body);
