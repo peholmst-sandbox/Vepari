@@ -1,4 +1,4 @@
-package net.pkhapps.vepari.server;
+package net.pkhapps.vepari.server.util;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,10 +11,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 @Configuration
 @EnableAsync
-class AsyncConfiguration {
+public class AsyncConfiguration {
 
     @Bean
-    public TaskExecutor taskExecutor() {
+    TaskExecutor taskExecutor() {
         // TODO Make this executor configurable
         return new ThreadPoolTaskExecutor();
     }

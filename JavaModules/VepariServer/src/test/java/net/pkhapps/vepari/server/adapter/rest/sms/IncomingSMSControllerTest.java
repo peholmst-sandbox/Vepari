@@ -1,9 +1,9 @@
 package net.pkhapps.vepari.server.adapter.rest.sms;
 
-import net.pkhapps.vepari.server.domain.event.TextMessageReceivedEvent;
+import net.pkhapps.vepari.server.application.TextMessageService;
+import net.pkhapps.vepari.server.domain.TextMessage;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Instant;
 
@@ -18,8 +18,8 @@ public class IncomingSMSControllerTest {
 
     @Test
     public void receiveSMS_eventIsPublished() {
-        var publisher = mock(ApplicationEventPublisher.class);
-        var controller = new IncomingSMSController(publisher);
+        var service = mock(TextMessageService.class);
+        var controller = new IncomingSMSController(service);
 
         TextMessageDTO dto = new TextMessageDTO();
         dto.sender = "sender";
@@ -28,12 +28,12 @@ public class IncomingSMSControllerTest {
 
         controller.receiveSMS(dto);
 
-        var event = ArgumentCaptor.forClass(TextMessageReceivedEvent.class);
-        verify(publisher).publishEvent(event.capture());
+        var message = ArgumentCaptor.forClass(TextMessage.class);
+        verify(service).receiveTextMessage(message.capture());
 
-        assertThat(event.getValue()).isNotNull();
+        assertThat(message.getValue()).isNotNull();
 
-        var textMessage = event.getValue().getTextMessage();
+        var textMessage = message.getValue();
 
         assertThat(textMessage.getSender()).isEqualTo(dto.sender);
         assertThat(textMessage.getTimestamp()).isEqualTo(dto.timestamp);

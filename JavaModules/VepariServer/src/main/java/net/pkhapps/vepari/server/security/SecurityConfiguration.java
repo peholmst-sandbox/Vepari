@@ -1,9 +1,12 @@
 package net.pkhapps.vepari.server.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
@@ -26,9 +29,12 @@ import java.util.List;
  * Security configuration for the application.
  */
 @Configuration
+@EntityScan
+@EnableJpaRepositories
+@ComponentScan
 @EnableWebSecurity
 @EnableJpaAuditing
-class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final AccessTokenRepository accessTokenRepository;
 

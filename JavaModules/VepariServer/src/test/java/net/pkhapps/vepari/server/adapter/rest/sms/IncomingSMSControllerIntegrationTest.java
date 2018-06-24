@@ -1,5 +1,6 @@
 package net.pkhapps.vepari.server.adapter.rest.sms;
 
+import net.pkhapps.vepari.server.launcher.VepariServerApp;
 import net.pkhapps.vepari.server.security.IntegrationTestSecurityUtils;
 import net.pkhapps.vepari.server.security.Permissions;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import java.time.Instant;
  * Integration test for {@link IncomingSMSController}.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = VepariServerApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class IncomingSMSControllerIntegrationTest {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // Injection works fine

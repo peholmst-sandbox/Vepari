@@ -1,8 +1,6 @@
 package net.pkhapps.vepari.server.util;
 
-import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
@@ -10,8 +8,8 @@ import java.time.Duration;
  * Converter for converting from a string to {@link Duration}. The string must be in a format that
  * {@link Duration#parse(CharSequence)} understands.
  */
-@Component
-@ConfigurationPropertiesBinding
+//@Component
+//@ConfigurationPropertiesBinding
 public class DurationConverter implements Converter<String, Duration> { // TODO Do we really need this converter?
 
     @Override

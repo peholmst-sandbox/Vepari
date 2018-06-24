@@ -2,6 +2,7 @@ package net.pkhapps.vepari.server.adapter.ws;
 
 import net.pkhapps.vepari.server.Profiles;
 import net.pkhapps.vepari.server.adapter.rest.testing.TestingController;
+import net.pkhapps.vepari.server.launcher.VepariServerApp;
 import net.pkhapps.vepari.server.security.IntegrationTestSecurityUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration test for {@link PushNotificationHandler}.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = VepariServerApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(Profiles.TESTING)
 public class PushNotificationHandlerIntegrationTest {
 
