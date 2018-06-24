@@ -12,14 +12,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Unit test for {@link IncomingSMSController}.
+ * Unit test for {@link TextMessageController}.
  */
-public class IncomingSMSControllerTest {
+public class TextMessageControllerTest {
 
     @Test
     public void receiveSMS_eventIsPublished() {
         var service = mock(TextMessageService.class);
-        var controller = new IncomingSMSController(service);
+        var controller = new TextMessageController(service);
 
         TextMessageDTO dto = new TextMessageDTO();
         dto.sender = "sender";

@@ -7,7 +7,7 @@ import net.pkhapps.vepari.server.security.Permissions;
 import javax.validation.constraints.NotNull;
 
 /**
- * Application service for receiving text messages from some adapter. The {@link Permissions#RECEIVE_SMS} permission is
+ * Application service for receiving text messages from a GSM gateway. The {@link Permissions#RECEIVE_SMS} permission is
  * required for the service to accept the incoming SMS.
  */
 public interface TextMessageService {

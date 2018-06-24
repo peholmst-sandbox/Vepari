@@ -13,17 +13,17 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 /**
- * REST controller for receiving SMS:es from a GSM gateway and forwarding them to {@link TextMessageService}.
+ * REST interface for the {@link TextMessageService}.
  */
 @RestController
 @Validated
-@RequestMapping(path = IncomingSMSController.PATH)
-class IncomingSMSController {
+@RequestMapping(path = TextMessageController.PATH)
+class TextMessageController {
 
     static final String PATH = "/sms/1.0";
     private final TextMessageService textMessageService;
 
-    IncomingSMSController(TextMessageService textMessageService) {
+    TextMessageController(TextMessageService textMessageService) {
         this.textMessageService = textMessageService;
     }
 

@@ -1,22 +1,18 @@
 package net.pkhapps.vepari.server.adapter.rest.alert;
 
-import net.pkhapps.vepari.server.security.Permissions;
-import net.pkhapps.vepari.server.security.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.pkhapps.vepari.server.application.AlertService;
+import net.pkhapps.vepari.server.domain.AlertRecord;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * TODO implement me
+ * REST interface for the {@link AlertService}.
  */
 @RestController
 @RequestMapping(path = AlertController.PATH)
@@ -24,24 +20,27 @@ import java.util.List;
 class AlertController {
 
     static final String PATH = "/alert/1.0";
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final AlertService alertService;
+
+    AlertController(AlertService alertService) {
+        this.alertService = alertService;
+    }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @Secured({Permissions.RECEIVE_ALERT, Permissions.RECEIVE_ALERT_FULL_DETAILS})
-    public List<Long> getUnseenAlertRecordIds(@AuthenticationPrincipal @NotNull User principal) {
-        return Collections.emptyList();
+    public List<Long> getUnseenAlertRecordIds() {
+        return alertService.getUnseenAlertRecords().stream().map(AlertRecord::getId).collect(Collectors.toList());
     }
 
     @GetMapping(path = "{alertRecordId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @Secured({Permissions.RECEIVE_ALERT, Permissions.RECEIVE_ALERT_FULL_DETAILS})
-    public ResponseEntity<AlertDTO> getAlert(@AuthenticationPrincipal @NotNull User principal,
-                                             @PathVariable("alertRecordId") @NotNull Long alertRecordId) {
-        return null;
+    public ResponseEntity<AlertDTO> getAlert(@PathVariable("alertRecordId") @NotNull Long alertRecordId) {
+        return alertService.getAlert(alertRecordId)
+                .map(AlertDTO::new)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping(path = "{alertRecordId}/ack")
-    @Secured({Permissions.RECEIVE_ALERT, Permissions.RECEIVE_ALERT_FULL_DETAILS})
-    public void acknowledgeAlert(@AuthenticationPrincipal @NotNull User principal,
-                                 @PathVariable("alertRecordId") @NotNull Long alertRecordId) {
+    public void acknowledgeAlert(@PathVariable("alertRecordId") @NotNull Long alertRecordId) {
+        alertService.acknowledgeAlert(alertRecordId);
     }
 }

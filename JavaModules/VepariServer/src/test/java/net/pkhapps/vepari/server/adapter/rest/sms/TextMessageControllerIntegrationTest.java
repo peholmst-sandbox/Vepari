@@ -16,11 +16,11 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 
 /**
- * Integration test for {@link IncomingSMSController}.
+ * Integration test for {@link TextMessageController}.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = VepariServerApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class IncomingSMSControllerIntegrationTest {
+public class TextMessageControllerIntegrationTest {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // Injection works fine
     @Autowired
@@ -32,7 +32,7 @@ public class IncomingSMSControllerIntegrationTest {
     @Test
     public void receiveSMS_authenticationHeaderWithCorrectPermission_accessGranted() {
         integrationTestUtils.generateAccessTokenForUserWithPermissions(Permissions.RECEIVE_SMS);
-        webTestClient.post().uri(IncomingSMSController.PATH)
+        webTestClient.post().uri(TextMessageController.PATH)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(Mono.just(createDTO()), TextMessageDTO.class)
                 .headers(integrationTestUtils::addAccessTokenToHeader)
@@ -42,7 +42,7 @@ public class IncomingSMSControllerIntegrationTest {
 
     @Test
     public void receiveSMS_noAuthenticationHeader_accessDenied() {
-        webTestClient.post().uri(IncomingSMSController.PATH)
+        webTestClient.post().uri(TextMessageController.PATH)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(Mono.just(createDTO()), TextMessageDTO.class)
                 .exchange()
@@ -52,7 +52,7 @@ public class IncomingSMSControllerIntegrationTest {
     @Test
     public void receiveSMS_authenticationHeaderWithIncorrectPermission_accessDenied() {
         integrationTestUtils.generateAccessTokenForUserWithPermissions(Permissions.PREFIX + "NON-EXISTENT");
-        webTestClient.post().uri(IncomingSMSController.PATH)
+        webTestClient.post().uri(TextMessageController.PATH)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .body(Mono.just(createDTO()), TextMessageDTO.class)
                 .headers(integrationTestUtils::addAccessTokenToHeader)

@@ -1,5 +1,6 @@
 package net.pkhapps.vepari.server.launcher;
 
+import net.pkhapps.vepari.server.adapter.cache.CacheConfiguration;
 import net.pkhapps.vepari.server.adapter.rest.RestConfiguration;
 import net.pkhapps.vepari.server.adapter.ws.WebSocketConfiguration;
 import net.pkhapps.vepari.server.application.ApplicationServiceConfiguration;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Import;
 @Import({AsyncConfiguration.class,
         RestConfiguration.class,
         WebSocketConfiguration.class,
+        CacheConfiguration.class,
         SecurityConfiguration.class,
         DomainModelConfiguration.class,
         ApplicationServiceConfiguration.class})

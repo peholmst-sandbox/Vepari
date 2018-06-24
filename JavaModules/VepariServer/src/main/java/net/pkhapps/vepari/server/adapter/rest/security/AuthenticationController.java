@@ -23,8 +23,7 @@ class AuthenticationController {
 
     static final String PATH = "/auth/1.0";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final AccessTokenService accessTokenService;
 
     AuthenticationController(AccessTokenService accessTokenService) {
@@ -33,14 +32,14 @@ class AuthenticationController {
 
     @PostMapping(path = "/token", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public AccessTokenDTO createToken(@AuthenticationPrincipal @NotNull User principal) {
-        LOGGER.debug("Creating new token for {}", principal);
+        logger.debug("Creating new token for {}", principal);
         return new AccessTokenDTO(accessTokenService.generateToken(principal));
     }
 
     @GetMapping(path = "/authorities", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public boolean hasAuthority(@AuthenticationPrincipal @NotNull User principal,
                                 @RequestParam("authority") @NotBlank String authority) {
-        LOGGER.debug("Checking if {} has authority {}", principal, authority);
+        logger.debug("Checking if {} has authority {}", principal, authority);
         return principal.hasAuthority(authority);
     }
 }
