@@ -15,18 +15,15 @@ import java.util.stream.Stream;
 @Component
 public class IntegrationTestSecurityUtils {
 
-    @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    AccessTokenService accessTokenService;
-
     private final ThreadLocal<Role> role = new ThreadLocal<>();
     private final ThreadLocal<User> user = new ThreadLocal<>();
     private final ThreadLocal<AccessToken> accessToken = new ThreadLocal<>();
+    @Autowired
+    RoleRepository roleRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    AccessTokenService accessTokenService;
 
     /**
      * Generates a new role with the given permissions, a new user that holds the role and an access token for the
@@ -66,8 +63,10 @@ public class IntegrationTestSecurityUtils {
     /**
      * Adds the access token bound to the current thread to the given HTTP headers.
      */
-    public void addAccessTokenToHeader(@NonNull HttpHeaders headers) {
+    @NonNull
+    public HttpHeaders addAccessTokenToHeader(@NonNull HttpHeaders headers) {
         getAccessToken().map(accessToken -> "Bearer " + accessToken.getToken())
                 .ifPresent(headerValue -> headers.add("Authorization", headerValue));
+        return headers;
     }
 }
