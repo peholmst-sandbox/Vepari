@@ -63,4 +63,10 @@ final class AccessTokenAuthentication extends AbstractAuthenticationToken {
         super.eraseCredentials();
         token = null;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s[principal=%s, authenticated=%s, authorities=%s]", getClass().getSimpleName(),
+                principal, isAuthenticated(), getAuthorities());
+    }
 }

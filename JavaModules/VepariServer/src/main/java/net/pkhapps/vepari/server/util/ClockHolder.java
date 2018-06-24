@@ -10,6 +10,7 @@ import java.util.Objects;
  * Utility class for getting static access to the {@link Clock} that is being used in the system. This makes it possible
  * to change the clock instance for example during testing.
  */
+@SuppressWarnings("WeakerAccess")
 public final class ClockHolder {
 
     private static Clock CLOCK = Clock.systemUTC();

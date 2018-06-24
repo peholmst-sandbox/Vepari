@@ -12,7 +12,7 @@ import java.time.Duration;
  */
 @Component
 @ConfigurationPropertiesBinding
-public class DurationConverter implements Converter<String, Duration> {
+public class DurationConverter implements Converter<String, Duration> { // TODO Do we really need this converter?
 
     @Override
     public Duration convert(String source) {

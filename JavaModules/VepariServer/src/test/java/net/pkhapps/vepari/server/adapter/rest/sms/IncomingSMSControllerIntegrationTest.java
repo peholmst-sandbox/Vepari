@@ -23,10 +23,10 @@ public class IncomingSMSControllerIntegrationTest {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // Injection works fine
     @Autowired
-    WebTestClient webTestClient;
+    private WebTestClient webTestClient;
 
     @Autowired
-    IntegrationTestSecurityUtils integrationTestUtils;
+    private IntegrationTestSecurityUtils integrationTestUtils;
 
     @Test
     public void receiveSMS_authenticationHeaderWithCorrectPermission_accessGranted() {

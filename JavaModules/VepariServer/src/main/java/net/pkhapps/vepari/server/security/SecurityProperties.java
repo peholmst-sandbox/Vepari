@@ -15,11 +15,11 @@ class SecurityProperties {
 
     private AccessTokens accessTokens = new AccessTokens();
 
-    AccessTokens getAccessTokens() {
+    public AccessTokens getAccessTokens() {
         return accessTokens;
     }
 
-    void setAccessTokens(AccessTokens accessTokens) {
+    public void setAccessTokens(AccessTokens accessTokens) {
         this.accessTokens = accessTokens;
     }
 
@@ -27,11 +27,11 @@ class SecurityProperties {
 
         private Duration defaultDuration = Duration.ofDays(365);
 
-        Duration getDefaultDuration() {
+        public Duration getDefaultDuration() {
             return defaultDuration;
         }
 
-        void setDefaultDuration(Duration defaultDuration) {
+        public void setDefaultDuration(Duration defaultDuration) {
             this.defaultDuration = defaultDuration;
         }
     }
