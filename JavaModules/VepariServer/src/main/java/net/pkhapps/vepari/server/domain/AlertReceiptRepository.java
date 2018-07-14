@@ -11,7 +11,7 @@ import org.springframework.lang.NonNull;
  */
 public interface AlertReceiptRepository extends JpaRepository<AlertReceipt, Long>,
         JpaSpecificationExecutor<AlertReceipt> {
-
+    
     @NonNull
     static Specification<AlertReceipt> byUser(@NonNull User user) {
         return (root, query, cb) -> cb.equal(root.get(AlertReceipt_.user), user);

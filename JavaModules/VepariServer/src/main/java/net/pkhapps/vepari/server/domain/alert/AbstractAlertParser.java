@@ -34,6 +34,7 @@ abstract class AbstractAlertParser {
 
     @EventListener
     public void onTextMessageReceivedEvent(@NonNull TextMessageReceivedEvent textMessageReceivedEvent) {
+        // TODO Add sender ID/number whitelist check (to prevent anybody from sending alerts)
         parseAlert(textMessageReceivedEvent.getTextMessage()).ifPresent(this::publishAlert);
     }
 

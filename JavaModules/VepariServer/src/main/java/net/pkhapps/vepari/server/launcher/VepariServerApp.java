@@ -7,6 +7,7 @@ import net.pkhapps.vepari.server.application.ApplicationServiceConfiguration;
 import net.pkhapps.vepari.server.domain.DomainModelConfiguration;
 import net.pkhapps.vepari.server.security.SecurityConfiguration;
 import net.pkhapps.vepari.server.util.AsyncConfiguration;
+import net.pkhapps.vepari.server.util.SchedulingConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Import;
         RestConfiguration.class,
         WebSocketConfiguration.class,
         CacheConfiguration.class,
+        SchedulingConfiguration.class,
         SecurityConfiguration.class,
         DomainModelConfiguration.class,
         ApplicationServiceConfiguration.class})
