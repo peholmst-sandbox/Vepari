@@ -10,7 +10,7 @@ The runboard is an application running on big screen monitors at the fire statio
 
 The runboard enters the alert mode whenever it receives a dispatch message from the Emergency Dispatch Center.
 
-[UI sketch of a runboard in alert mode](img_runboard/alert_mode.png)
+![](img_runboard/alert_mode.png)
 
 * At the top of the screen, you can see the type of incident, the incident address and the units from the own fire department that have been dispatched. 
   * There is a special kind of dispatch SMS you can order that includes the coordinates of the incident, which makes plotting on a map easier since you don't need to do an address lookup. However, since all SMS:es are cut after 160 characters, a lot of extra information will be lost (such as additional details or even the alerted units). Therefore, there is no point in showing this information in the runboard.
