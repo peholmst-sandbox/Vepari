@@ -23,6 +23,7 @@ The runboard enters the alert mode whenever it receives a dispatch message from 
 * All the people responding to this particular incident are listed on the screen, ordered by which status they have provided.
   * In this example, there are three available statuses: one for people responding within 10 minutes (green), another for people responding withing 15 minutes (yellow) and a third for people that are not responding immediately but may be available for crew changes later (red).
   * The qualities of the responders are also shown. 
+  * If the responders don't fit on the screen, the list will automatically scroll up and down.
 * At the bottom, there is a summary of the crew responding to this incident, grouped by status.
   * In this example, you can see that a crew of 1+3 will be at the station within 10 minutes, another 0+2 within 15 minutes and 0+1 on demand. 3+7 are not responding at all.
 * The runboard will reset to standby mode after a configured timeout has been reached.
@@ -46,5 +47,59 @@ The runboard is in standby mode by default.
   * By default, every member's prepardness level is set to normal.
   * It is possible for members to raise their prepardness level for short periods of time, for example if they have agreed to be available to respond during a holiday when the rest of the department is off (such as midsummer's eve).
   * It is also possible for a member to go out of service, for example due to sickness or traveling.
+
+## The Phone App
+
+The phone app is an application running on each responder's Android phone (if they have one, that is). It is used for receiving dispatch notifications, sending status messages and very simple messaging. For more advanced messaging other existing solutions such as WhatsApp should be used.
+
+The phone app will also include a login screen and a settings view for configuring the application (selecting alert sound and timeout, enabling or disabling location sharing, etc.), a menu for navigating between the views, etc. However, only the most important views are included below.
+
+### Receiving an SMS Dispatch Message
+
+![](img_phone/sms_dispatch.png)
+
+* The app reacts when a dispatch message is received as an SMS from the Emergency Dispatch Center and will sound an alarm signal until the user reacts or some timeout is reached.
+* The app parses the incident code from the message and looks up its description from a local database.
+* The text message is shown as-is without any formatting.
+* A timer shows the time elapsed since the message was received.
+* Status buttons allow the responder to select a status.
+* Above each status button is the number of responders who have selected that particular status.
+* If the status message cannot be sent, e.g. because of a network error, the app will present the user with the option of calling a predefined number or sending the status as a text message instead.
+
+### Receiving an App Dispatch Message
+
+![](img_phone/app_dispatch.png)
+
+* The app reacts when the server broadcasts a limitied dispatch notification that includes only the incident code.
+  * This is mainly intended for situations where a responder is not yet receiving official dispatch messages from the emergency dispatch center and as a backup solution in case some text messages were to be lost.
+* Apart from the missing dispatch message, the app behaves in the same way as if it had received an SMS dispatch message.
+* If an SMS dispatch message is received after the app dispatch notification, the message will shows up on the screen.
+* If an app dispatch notification is received after the SMS dispatch message, nothing happens.
+
+### Events
+
+![](img_phone/events.png)
+
+* It is possible to open a list of upcoming events in the app.
+* Users can RSVP by pressing a button.
+* The RSVP can be changed afterwards.
+
+### Simple Messaging
+
+![](img_phone/app_message.png)
+
+* Short pre-defined messages can be sent out to certain groups of users.
+* These messages can have predefined response options, such as 'Yes' and 'No' or 'Coming' or 'Not Coming'.
+  * It is possible to see how many users have selected which option for each message.
+* It is possible to add additional text to the message.
+
+![](img_phone/app_message_2.png)
+
+* If there are no response options, there is only an 'Acknowledge' button that allows the users to acknowledge that they have received and read the message.
+
+![](img_phone/app_message_custom.png)
+
+* It is also possible to send out completely custom messages. In this case, there is a button to continue the discussion in some other messaging app, such as WhatsApp.
+
 
 ## To be continued...
