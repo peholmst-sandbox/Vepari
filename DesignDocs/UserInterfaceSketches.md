@@ -1,4 +1,4 @@
-# Vepari UI Sketches
+# User Interface Sketches
 
 This page contains some rough UI sketches of the different user intefaces of Vepari. They are only mean to convey the general idea of what information and interactions the UI provides. The actual user interface will look different and may also include features not present or lack features present in the sketches.
 
