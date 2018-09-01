@@ -4,7 +4,7 @@ This directory contains different design documents used during the design and de
 
 * [Project Vision](ProjectVision.md): Overview of what this system is all about and what purpose it serves.
 * [Hardware and Platforms](HardwareAndPlatforms.md): The platform and hardware that the system will be built on and why they were chosen.
-* [UI Sketces](UserInterfaceSketches.md): Some very rough sketches of what the UI of the different applications could look like (in terms of content, not visual appearance).
+* [UI Sketches](UserInterfaceSketches.md): Some very rough sketches of what the UI of the different applications could look like (in terms of content, not visual appearance).
 
 Coming:
 
